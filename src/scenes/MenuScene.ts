@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { soundEngine } from '../utils/SoundEngine';
 
 export default class MenuScene extends Phaser.Scene {
   constructor() {
@@ -125,7 +126,13 @@ export default class MenuScene extends Phaser.Scene {
     }
 
     // Input
-    this.input.on('pointerdown', () => this.scene.start('GameScene'));
-    this.input.keyboard?.on('keydown-SPACE', () => this.scene.start('GameScene'));
+    this.input.on('pointerdown', () => {
+      soundEngine.playMenuClick();
+      this.scene.start('GameScene');
+    });
+    this.input.keyboard?.on('keydown-SPACE', () => {
+      soundEngine.playMenuClick();
+      this.scene.start('GameScene');
+    });
   }
 }

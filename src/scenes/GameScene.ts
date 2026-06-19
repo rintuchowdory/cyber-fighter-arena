@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { soundEngine } from '../utils/SoundEngine';
 
 type PlayerAnim = 'idle' | 'walk' | 'jump' | 'attack';
 
@@ -106,7 +107,14 @@ export default class GameScene extends Phaser.Scene {
     // ── INPUT ────────────────────────────────────────────────────────────────
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.attackKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
-    this.input.keyboard?.on('keydown-ESC', () => this.scene.start('MenuScene'));
+    this.input.keyboard?.on('keydown-ESC', () => {
+      soundEngine.stopBGM();
+      this.scene.start('MenuScene');
+    });
+
+    // ── AUDIO ─────────────────────────────────────────────────────────────────
+    soundEngine.startBGM();
+    this.events.on('shutdown', () => soundEngine.stopBGM(), this);
 
     // ── HUD ──────────────────────────────────────────────────────────────────
     this.setupHUD(W, H);
@@ -246,7 +254,11 @@ export default class GameScene extends Phaser.Scene {
     this.combo = 0;
     this.comboText.setAlpha(0);
 
+    soundEngine.playPlayerHit();
+
     if (this.health <= 0) {
+      soundEngine.stopBGM();
+      soundEngine.playGameOver();
       this.cameras.main.shake(300, 0.022);
       this.time.delayedCall(350, () => {
         this.scene.start('GameOverScene', { score: this.score, wave: this.waveNumber });
@@ -320,6 +332,7 @@ export default class GameScene extends Phaser.Scene {
       onComplete: () => ft.destroy(),
     });
 
+    soundEngine.playEnemyDeath();
     this.cameras.main.flash(70, 255, 80, 0, false);
 
     // Shockwave ring on death
@@ -346,6 +359,8 @@ export default class GameScene extends Phaser.Scene {
         yoyo: true,
         ease: 'Back.Out',
       });
+
+      soundEngine.playWaveClear();
 
       const ann = this.add.text(
         this.cameras.main.width / 2,
@@ -395,6 +410,7 @@ export default class GameScene extends Phaser.Scene {
     // ── Jump ────────────────────────────────────────────────────
     if (this.cursors.up.isDown && onGround) {
       this.player.setVelocityY(-430);
+      soundEngine.playJump();
     }
 
     // ── Attack ──────────────────────────────────────────────────
@@ -435,6 +451,7 @@ export default class GameScene extends Phaser.Scene {
     this.isAttacking = true;
     this.currentAnim = 'attack';
     this.player.play('player_attack');
+    soundEngine.playPunch();
 
     // Place hitbox on frame 1 of attack (the "strike" frame)
     const ox = this.player.flipX ? -70 : 70;
