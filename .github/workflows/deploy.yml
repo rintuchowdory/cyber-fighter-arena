@@ -13,8 +13,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: npm install --legacy-peer-deps
-      - run: npm approve-scripts esbuild
+      - run: npm install --legacy-peer-deps --foreground-scripts
       - name: Build
         run: npm run build
         env:
