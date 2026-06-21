@@ -14,4 +14,18 @@ export default defineConfig({
     },
   },
   publicDir: 'public',
+  optimizeDeps: {
+    include: ['phaser'],
+  },
+  build: {
+    sourcemap: false,
+    minify: 'esbuild',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          phaser: ['phaser'],
+        },
+      },
+    },
+  },
 });
