@@ -17,7 +17,11 @@ jobs:
         with:
           node-version: "20"
       - run: npm install --legacy-peer-deps
-      - run: ./node_modules/.bin/vite build
+      - name: Build
+        run: |
+          node --version
+          npx --no-install vite --version
+          NODE_OPTIONS="--max-old-space-size=4096" npx --no-install vite build 2>&1
         env:
           BASE_URL: /cyber-fighter-arena/
           CI: ""
@@ -26,3 +30,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           force_orphan: true
+
