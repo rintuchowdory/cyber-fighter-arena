@@ -17,20 +17,13 @@ jobs:
         with:
           node-version: "20"
       - run: npm install --legacy-peer-deps
-      - name: Build and capture errors
+      - name: Check install
         run: |
-          NODE_OPTIONS="--max-old-space-size=4096" npx --no-install vite build > /tmp/build.log 2>&1
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -ne 0 ]; then
-            git config user.email "ci@github.com"
-            git config user.name "CI"
-            cp /tmp/build.log build-error.log
-            git add build-error.log
-            git commit -m "ci: capture build error log" || true
-            git push origin main || true
-            cat /tmp/build.log
-            exit $EXIT_CODE
-          fi
+          ls node_modules/.bin/vite || echo "NO VITE BINARY"
+          cat node_modules/vite/package.json | python3 -c "import json,sys; p=json.load(sys.stdin); print('vite:', p['version'])" || echo "NO VITE PKG"
+          cat node_modules/phaser/package.json | python3 -c "import json,sys; p=json.load(sys.stdin); print('phaser:', p['version'])" || echo "NO PHASER PKG"
+      - name: Build
+        run: NODE_OPTIONS="--max-old-space-size=4096" node_modules/.bin/vite build
         env:
           BASE_URL: /cyber-fighter-arena/
           CI: ""
