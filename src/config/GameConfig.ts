@@ -17,6 +17,7 @@ const config: Phaser.Types.Core.GameConfig = {
   },
   scene: [BootScene, MenuScene, GameScene, GameOverScene],
   backgroundColor: '#222222',
+  parent: 'app',
 };
 
 export default config;
