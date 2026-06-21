@@ -17,11 +17,20 @@ jobs:
         with:
           node-version: "20"
       - run: npm install --legacy-peer-deps
-      - name: Build
+      - name: Build and capture errors
         run: |
-          node --version
-          npx --no-install vite --version
-          NODE_OPTIONS="--max-old-space-size=4096" npx --no-install vite build 2>&1
+          NODE_OPTIONS="--max-old-space-size=4096" npx --no-install vite build > /tmp/build.log 2>&1
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -ne 0 ]; then
+            git config user.email "ci@github.com"
+            git config user.name "CI"
+            cp /tmp/build.log build-error.log
+            git add build-error.log
+            git commit -m "ci: capture build error log" || true
+            git push origin main || true
+            cat /tmp/build.log
+            exit $EXIT_CODE
+          fi
         env:
           BASE_URL: /cyber-fighter-arena/
           CI: ""
